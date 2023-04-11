@@ -11,5 +11,12 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Binaries for Lambda environment
+go-onebot-openai-lambda
+go-onebot-openai-lambda.zip
+
+# Local envs
+.*
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
