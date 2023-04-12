@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,9 +21,10 @@ type Response events.APIGatewayProxyResponse
 
 var extraLog = os.Getenv("EXTRA_LOG") // string, true, false or (null)
 var openaiApiKey = os.Getenv("OPENAI_API_KEY")
-var envMaxRetries = os.Getenv("MAX_RETRIES")
-var envRetryDelay = os.Getenv("RETRY_DELAY")
-var receiverAddr = os.Getenv("RECV_ADDR") // http://1.2.3.4/port
+var envMaxRetries = os.Getenv("MAX_RETRIES") // for everything, including OpenAI API call, Onebot client call, etc.
+var envRetryDelay = os.Getenv("RETRY_DELAY") // in seconds
+var onebotLsnrAddr = os.Getenv("RECV_ADDR")  // Onebot client listener addr, like http://1.2.3.4/port
+var receiverToken = os.Getenv("RECV_TOKEN")  // Onebot client access token, set in config mostly
 
 type OnebotGroupMessageRequestBody struct {
 	PostType    string `json:"post_type"`
@@ -163,7 +165,7 @@ func SendGroupMessageBack(msg string, gid uint64, uid uint64) error {
 		GroupID uint64     `json:"group_id"`
 		Message []tMessage `json:"message"`
 	}
-	url := receiverAddr + "/send_group_msg"
+	url := onebotLsnrAddr + "/send_group_msg"
 
 	data := tRequestBody{
 		GroupID: gid,
@@ -196,6 +198,7 @@ func SendGroupMessageBack(msg string, gid uint64, uid uint64) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", receiverToken))
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

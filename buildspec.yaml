@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      golang: latest
+  pre_build:
+    commands:
+      - echo no pre_build command
+  build:
+    commands:
+      - echo Build started on `date`
+      - go build
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - cd ..
+artifacts:
+  files:
+    - go-onebot-openai-lambda
